@@ -333,11 +333,20 @@ function renderNearestRegions() {
         const latencyClass = latency ? 'tested' : '';
         const rankClass = index === 0 ? 'rank-1' : '';
 
+        // Service availability badges
+        const w365Badge = region.w365
+            ? '<span class="service-badge available" title="Windows 365 Available">W365 ✓</span>'
+            : '<span class="service-badge unavailable" title="Windows 365 Not Available">W365 ✗</span>';
+        const avdBadge = region.avd
+            ? '<span class="service-badge available" title="Azure Virtual Desktop Available">AVD ✓</span>'
+            : '<span class="service-badge unavailable" title="Azure Virtual Desktop Not Available">AVD ✗</span>';
+
         return `
             <div class="nearest-region-item ${rankClass}" data-code="${region.code}">
                 <div class="nearest-region-info">
                     <h4>${region.name}</h4>
                     <p>${region.location}</p>
+                    <div class="service-badges">${w365Badge}${avdBadge}</div>
                     <div class="nearest-region-latency ${latencyClass}">${latencyText}</div>
                 </div>
                 <div class="nearest-region-distance">

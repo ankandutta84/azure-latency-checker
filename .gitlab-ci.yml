@@ -1,0 +1,52 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  APP_PATH: "C:\\apps\\azure-latency-checker"
+
+# Build job - runs on Windows runner
+build:
+  stage: build
+  tags:
+    - windows
+  script:
+    - npm ci
+    - npm run lint --if-present
+    - npm test --if-present
+  artifacts:
+    paths:
+      - node_modules/
+      - public/
+      - server.js
+      - package.json
+      - package-lock.json
+    expire_in: 1 hour
+
+# Deploy to local Windows server
+deploy:
+  stage: deploy
+  tags:
+    - windows
+  only:
+    - main
+    - master
+  script:
+    # Stop existing app (if using PM2)
+    - pm2 stop azure-latency-checker || true
+
+    # Create app directory if not exists
+    - if (!(Test-Path $env:APP_PATH)) { New-Item -ItemType Directory -Path $env:APP_PATH -Force }
+
+    # Copy files to app directory
+    - Copy-Item -Path ".\*" -Destination $env:APP_PATH -Recurse -Force
+
+    # Start app with PM2 (process manager)
+    - cd $env:APP_PATH
+    - pm2 start server.js --name azure-latency-checker
+    - pm2 save
+
+    # Show status
+    - pm2 status
+  dependencies:
+    - build
