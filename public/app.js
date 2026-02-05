@@ -285,5 +285,159 @@ stopBtn.addEventListener('click', stopTest);
 geographyFilter.addEventListener('change', renderRegions);
 sortBy.addEventListener('change', renderRegions);
 
+// =====================
+// City Search Feature
+// =====================
+
+// City Search DOM Elements
+const citySearch = document.getElementById('citySearch');
+const searchSuggestions = document.getElementById('searchSuggestions');
+const nearestRegionsPanel = document.getElementById('nearestRegionsPanel');
+const selectedCityName = document.getElementById('selectedCityName');
+const nearestRegionsList = document.getElementById('nearestRegionsList');
+const testNearestBtn = document.getElementById('testNearestBtn');
+
+let selectedCity = null;
+let nearestRegions = [];
+
+// Render search suggestions
+function renderSuggestions(cities) {
+    if (cities.length === 0) {
+        searchSuggestions.classList.remove('active');
+        return;
+    }
+
+    searchSuggestions.innerHTML = cities.map(city => `
+        <div class="suggestion-item" data-lat="${city.lat}" data-lng="${city.lng}" data-name="${city.name}" data-country="${city.country}">
+            <span class="suggestion-city">${city.name}</span>
+            <span class="suggestion-country">${city.country}</span>
+        </div>
+    `).join('');
+
+    searchSuggestions.classList.add('active');
+}
+
+// Render nearest regions panel
+function renderNearestRegions() {
+    if (!selectedCity || nearestRegions.length === 0) {
+        nearestRegionsPanel.classList.remove('active');
+        return;
+    }
+
+    selectedCityName.textContent = `Nearest Azure regions to ${selectedCity.name}, ${selectedCity.country}`;
+    testNearestBtn.disabled = false;
+
+    nearestRegionsList.innerHTML = nearestRegions.map((region, index) => {
+        const latency = latencyResults[region.code];
+        const latencyText = latency ? `${latency} ms` : 'Not tested';
+        const latencyClass = latency ? 'tested' : '';
+        const rankClass = index === 0 ? 'rank-1' : '';
+
+        return `
+            <div class="nearest-region-item ${rankClass}" data-code="${region.code}">
+                <div class="nearest-region-info">
+                    <h4>${region.name}</h4>
+                    <p>${region.location}</p>
+                    <div class="nearest-region-latency ${latencyClass}">${latencyText}</div>
+                </div>
+                <div class="nearest-region-distance">
+                    <span class="distance-value">${Math.round(region.distance)}</span>
+                    <span class="distance-unit">km away</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    nearestRegionsPanel.classList.add('active');
+}
+
+// Handle city selection
+function selectCity(city) {
+    selectedCity = city;
+    citySearch.value = `${city.name}, ${city.country}`;
+    searchSuggestions.classList.remove('active');
+
+    // Find nearest regions
+    nearestRegions = findNearestRegions(city.lat, city.lng, regions, 5);
+    renderNearestRegions();
+}
+
+// Test nearest regions
+async function testNearestRegions() {
+    if (nearestRegions.length === 0) return;
+
+    testNearestBtn.disabled = true;
+    testNearestBtn.textContent = 'Testing...';
+
+    for (const region of nearestRegions) {
+        const endpoint = AZURE_SPEED_TEST_ENDPOINTS[region.code];
+        if (!endpoint) continue;
+
+        // Mark card as testing
+        const card = document.getElementById(`card-${region.code}`);
+        if (card) card.classList.add('testing');
+
+        // Measure latency
+        const latency = await measureLatency(endpoint);
+        latencyResults[region.code] = latency;
+
+        // Update UI
+        updateRegionCard(region.code);
+        updateStats();
+    }
+
+    // Update nearest regions panel with results
+    renderNearestRegions();
+
+    // Re-render main grid if sorting by latency
+    if (sortBy.value === 'latency') {
+        renderRegions();
+    }
+
+    testNearestBtn.disabled = false;
+    testNearestBtn.textContent = 'Test Nearest 5';
+}
+
+// City search event listeners
+citySearch.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    if (query.length < 2) {
+        searchSuggestions.classList.remove('active');
+        return;
+    }
+
+    const matches = searchCities(query);
+    renderSuggestions(matches);
+});
+
+citySearch.addEventListener('focus', () => {
+    const query = citySearch.value.trim();
+    if (query.length >= 2) {
+        const matches = searchCities(query);
+        renderSuggestions(matches);
+    }
+});
+
+searchSuggestions.addEventListener('click', (e) => {
+    const item = e.target.closest('.suggestion-item');
+    if (item) {
+        selectCity({
+            name: item.dataset.name,
+            country: item.dataset.country,
+            lat: parseFloat(item.dataset.lat),
+            lng: parseFloat(item.dataset.lng)
+        });
+    }
+});
+
+// Close suggestions when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-container')) {
+        searchSuggestions.classList.remove('active');
+    }
+});
+
+testNearestBtn.addEventListener('click', testNearestRegions);
+
 // Initialize
 loadRegions();

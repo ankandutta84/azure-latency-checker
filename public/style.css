@@ -328,6 +328,190 @@ header {
     background: linear-gradient(90deg, #ef4444, #f87171);
 }
 
+/* City Search Section */
+.city-search-section {
+    margin-bottom: 2rem;
+}
+
+.search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+}
+
+#citySearch {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#citySearch::placeholder {
+    color: #a0aec0;
+}
+
+#citySearch:focus {
+    border-color: #00BCF2;
+    box-shadow: 0 0 20px rgba(0, 188, 242, 0.2);
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+
+.search-suggestions.active {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+}
+
+.suggestion-item:hover {
+    background: rgba(0, 188, 242, 0.2);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-city {
+    font-weight: 500;
+}
+
+.suggestion-country {
+    color: #a0aec0;
+    font-size: 0.875rem;
+}
+
+.nearest-regions-panel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: none;
+}
+
+.nearest-regions-panel.active {
+    display: block;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.panel-header h3 {
+    color: #00BCF2;
+    font-size: 1.1rem;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #0078D4, #00BCF2);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-small:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 120, 212, 0.4);
+}
+
+.btn-small:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.nearest-regions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.nearest-region-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nearest-region-item.rank-1 {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.nearest-region-info h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.nearest-region-info p {
+    color: #a0aec0;
+    font-size: 0.875rem;
+}
+
+.nearest-region-distance {
+    text-align: right;
+}
+
+.distance-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #00BCF2;
+}
+
+.distance-unit {
+    color: #a0aec0;
+    font-size: 0.75rem;
+    display: block;
+}
+
+.nearest-region-latency {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #a0aec0;
+}
+
+.nearest-region-latency.tested {
+    color: #10b981;
+    font-weight: 500;
+}
+
 footer {
     margin-top: 3rem;
     text-align: center;

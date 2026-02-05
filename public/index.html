@@ -29,6 +29,21 @@
             <p class="subtitle">Measure network latency to all Azure regions from your location</p>
         </header>
 
+        <!-- City Search Section -->
+        <div class="city-search-section">
+            <div class="search-container">
+                <input type="text" id="citySearch" placeholder="Type a city name to find nearest Azure regions..." autocomplete="off">
+                <div class="search-suggestions" id="searchSuggestions"></div>
+            </div>
+            <div class="nearest-regions-panel" id="nearestRegionsPanel">
+                <div class="panel-header">
+                    <h3 id="selectedCityName">Select a city to find nearest regions</h3>
+                    <button id="testNearestBtn" class="btn-small" disabled>Test Nearest 5</button>
+                </div>
+                <div class="nearest-regions-list" id="nearestRegionsList"></div>
+            </div>
+        </div>
+
         <div class="controls">
             <button id="startTest" class="btn-primary">
                 <span class="btn-icon">▶</span>
@@ -89,6 +104,7 @@
         </footer>
     </div>
 
+    <script src="cities.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
