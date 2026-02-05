@@ -386,6 +386,13 @@ async function testNearestRegions() {
         updateStats();
     }
 
+    // Sort nearest regions by latency (lowest first)
+    nearestRegions.sort((a, b) => {
+        const latA = latencyResults[a.code] || 9999;
+        const latB = latencyResults[b.code] || 9999;
+        return latA - latB;
+    });
+
     // Update nearest regions panel with results
     renderNearestRegions();
 
