@@ -61,7 +61,7 @@ azure-latency-checker/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/azure-latency-checker.git
+git clone https://github.com/ankandutta84/azure-latency-checker.git
 cd azure-latency-checker
 
 # Install dependencies
