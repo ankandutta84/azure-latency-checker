@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ankan's Azure Latency Tester</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -28,6 +28,21 @@
             </div>
             <p class="subtitle">Measure network latency to all Azure regions from your location</p>
         </header>
+
+        <!-- Outage Alerts Section -->
+        <div class="outage-alerts-section" id="outageAlertsSection">
+            <div class="outage-header">
+                <div class="outage-title">
+                    <span class="outage-icon" id="outageIcon">&#9888;</span>
+                    <h3>Service Status</h3>
+                </div>
+                <div class="outage-status" id="outageStatus">Checking...</div>
+                <button class="btn-refresh" id="refreshOutagesBtn" title="Refresh status">&#8635;</button>
+            </div>
+            <div class="outage-content" id="outageContent">
+                <div class="outage-loading">Checking for service issues...</div>
+            </div>
+        </div>
 
         <!-- City Search Section -->
         <div class="city-search-section">
@@ -125,7 +140,7 @@
         </footer>
     </div>
 
-    <script src="cities.js?v=2"></script>
-    <script src="app.js?v=2"></script>
+    <script src="cities.js?v=3"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>

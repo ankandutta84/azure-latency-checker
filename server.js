@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { getServiceAvailability, refreshServiceAvailability } = require('./azureService');
+const { getOutageStatus, refreshOutageStatus } = require('./outageService');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -156,6 +157,65 @@ app.post('/api/refresh-availability', async (req, res) => {
       success: true,
       w365Count: result.w365Regions.size,
       avdCount: result.avdRegions.size
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// API endpoint to get outage status from Azure Status and Downdetector
+app.get('/api/outages', async (req, res) => {
+  try {
+    const status = await getOutageStatus();
+
+    // Combine all issues
+    const allIssues = [
+      ...(status.azureStatus?.issues || []),
+      ...(status.downdetector?.issues || [])
+    ];
+
+    res.json({
+      success: true,
+      hasIssues: allIssues.length > 0,
+      issues: allIssues,
+      lastUpdated: status.lastUpdated,
+      sources: {
+        azureStatus: {
+          available: !status.azureStatus?.error,
+          issueCount: status.azureStatus?.issues?.length || 0
+        },
+        downdetector: {
+          available: !status.downdetector?.error,
+          issueCount: status.downdetector?.issues?.length || 0
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error in /api/outages:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// API endpoint to force refresh outage status
+app.post('/api/refresh-outages', async (req, res) => {
+  try {
+    const status = await refreshOutageStatus();
+    const allIssues = [
+      ...(status.azureStatus?.issues || []),
+      ...(status.downdetector?.issues || [])
+    ];
+
+    res.json({
+      success: true,
+      hasIssues: allIssues.length > 0,
+      issueCount: allIssues.length,
+      lastUpdated: status.lastUpdated
     });
   } catch (error) {
     res.status(500).json({

@@ -563,5 +563,173 @@ document.addEventListener('keydown', (e) => {
 });
 
 
+// =====================
+// Outage Alerts Feature
+// =====================
+
+// Outage DOM Elements
+const outageAlertsSection = document.getElementById('outageAlertsSection');
+const outageIcon = document.getElementById('outageIcon');
+const outageStatus = document.getElementById('outageStatus');
+const outageContent = document.getElementById('outageContent');
+const refreshOutagesBtn = document.getElementById('refreshOutagesBtn');
+
+// Format date for display
+function formatOutageDate(dateString) {
+    if (!dateString) return '';
+    try {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 60) {
+            return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+    } catch {
+        return dateString;
+    }
+}
+
+// Render outage issues
+function renderOutageIssues(issues) {
+    if (issues.length === 0) {
+        return `
+            <div class="outage-all-clear">
+                <span class="outage-all-clear-icon">&#10003;</span>
+                <span>No issues detected for Windows 365, AVD, or Azure authentication services.</span>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="outage-issues-list">
+            ${issues.map(issue => {
+                const sourceClass = issue.source === 'Downdetector' ? 'downdetector' : '';
+                const severityClass = issue.status === 'critical' ? 'critical' : 'degraded';
+                return `
+                    <div class="outage-issue-card ${severityClass}">
+                        <div class="outage-issue-header">
+                            <span class="outage-issue-title">${escapeHtml(issue.title)}</span>
+                            <span class="outage-issue-source ${sourceClass}">${issue.source}</span>
+                        </div>
+                        <div class="outage-issue-description">${escapeHtml(issue.description)}</div>
+                        <div class="outage-issue-footer">
+                            <span class="outage-issue-date">${formatOutageDate(issue.date)}</span>
+                            ${issue.link ? `<a href="${issue.link}" target="_blank" rel="noopener noreferrer" class="outage-issue-link">View details &rarr;</a>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Fetch and display outage status
+async function loadOutageStatus(forceRefresh = false) {
+    // Set loading state
+    outageStatus.textContent = 'Checking...';
+    outageStatus.className = 'outage-status checking';
+    outageAlertsSection.classList.remove('has-issues', 'operational');
+
+    if (forceRefresh) {
+        refreshOutagesBtn.classList.add('loading');
+    }
+
+    try {
+        const endpoint = forceRefresh ? '/api/refresh-outages' : '/api/outages';
+        const method = forceRefresh ? 'POST' : 'GET';
+
+        const response = await fetch(endpoint, { method });
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to fetch outage status');
+        }
+
+        // Determine if there are issues - for refresh endpoint, we need to fetch full data
+        let issues = [];
+        let lastUpdated = data.lastUpdated;
+
+        if (forceRefresh) {
+            // Refresh endpoint returns minimal data, fetch full data
+            const fullResponse = await fetch('/api/outages');
+            const fullData = await fullResponse.json();
+            issues = fullData.issues || [];
+            lastUpdated = fullData.lastUpdated;
+        } else {
+            issues = data.issues || [];
+        }
+
+        const hasIssues = issues.length > 0;
+
+        // Update status indicator
+        if (hasIssues) {
+            outageStatus.textContent = `${issues.length} Issue${issues.length !== 1 ? 's' : ''} Detected`;
+            outageStatus.className = 'outage-status issues';
+            outageAlertsSection.classList.add('has-issues');
+            outageAlertsSection.classList.remove('operational');
+        } else {
+            outageStatus.textContent = 'All Systems Operational';
+            outageStatus.className = 'outage-status operational';
+            outageAlertsSection.classList.add('operational');
+            outageAlertsSection.classList.remove('has-issues');
+        }
+
+        // Render content
+        let contentHtml = renderOutageIssues(issues);
+
+        // Add last updated timestamp
+        if (lastUpdated) {
+            contentHtml += `<div class="outage-last-updated">Last checked: ${formatOutageDate(lastUpdated)}</div>`;
+        }
+
+        outageContent.innerHTML = contentHtml;
+
+        // Expand content if there are issues
+        if (hasIssues) {
+            outageContent.classList.add('expanded');
+        } else {
+            outageContent.classList.remove('expanded');
+        }
+
+    } catch (error) {
+        console.error('Error loading outage status:', error);
+        outageStatus.textContent = 'Status Unavailable';
+        outageStatus.className = 'outage-status checking';
+        outageContent.innerHTML = `<div class="outage-loading">Unable to check service status. <a href="#" onclick="loadOutageStatus(true); return false;">Try again</a></div>`;
+    } finally {
+        refreshOutagesBtn.classList.remove('loading');
+    }
+}
+
+// Toggle outage content visibility
+outageAlertsSection.querySelector('.outage-header').addEventListener('click', (e) => {
+    if (e.target === refreshOutagesBtn || e.target.closest('.btn-refresh')) return;
+    outageContent.classList.toggle('expanded');
+});
+
+// Refresh outages button
+refreshOutagesBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    loadOutageStatus(true);
+});
+
 // Initialize
 loadRegions();
+loadOutageStatus();
