@@ -274,6 +274,7 @@ async function loadRegions() {
         const response = await fetch('/api/regions');
         regions = await response.json();
         renderRegions();
+        updateServiceCounts();
     } catch (error) {
         regionsGrid.innerHTML = '<div class="loading">Error loading regions. Please refresh the page.</div>';
     }
@@ -454,6 +455,113 @@ document.addEventListener('click', (e) => {
 });
 
 testNearestBtn.addEventListener('click', testNearestRegions);
+
+// =====================
+// Service Count Feature
+// =====================
+
+// Service Count DOM Elements
+const w365Count = document.getElementById('w365Count');
+const avdCount = document.getElementById('avdCount');
+const w365Stat = document.getElementById('w365Stat');
+const avdStat = document.getElementById('avdStat');
+const serviceModal = document.getElementById('serviceModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalRegionsList = document.getElementById('modalRegionsList');
+const modalClose = document.getElementById('modalClose');
+
+// Update service counts
+function updateServiceCounts() {
+    if (regions.length === 0) return;
+
+    const w365Regions = regions.filter(r => r.w365);
+    const avdRegions = regions.filter(r => r.avd);
+
+    w365Count.textContent = w365Regions.length;
+    avdCount.textContent = avdRegions.length;
+}
+
+// Show service regions modal
+function showServiceModal(serviceType) {
+    let filteredRegions = [];
+    let title = '';
+
+    if (serviceType === 'w365') {
+        filteredRegions = regions.filter(r => r.w365);
+        title = `Windows 365 Supported Regions (${filteredRegions.length})`;
+    } else if (serviceType === 'avd') {
+        filteredRegions = regions.filter(r => r.avd);
+        title = `Azure Virtual Desktop Supported Regions (${filteredRegions.length})`;
+    }
+
+    // Sort by geography then by name
+    filteredRegions.sort((a, b) => {
+        if (a.geography !== b.geography) {
+            return a.geography.localeCompare(b.geography);
+        }
+        return a.name.localeCompare(b.name);
+    });
+
+    modalTitle.textContent = title;
+
+    // Group by geography
+    const grouped = {};
+    filteredRegions.forEach(region => {
+        if (!grouped[region.geography]) {
+            grouped[region.geography] = [];
+        }
+        grouped[region.geography].push(region);
+    });
+
+    // Render grouped regions
+    let html = '';
+    for (const [geography, geoRegions] of Object.entries(grouped)) {
+        html += `
+            <div class="modal-geography-group">
+                <h3 class="modal-geography-title">${geography} (${geoRegions.length})</h3>
+                <div class="modal-region-cards">
+                    ${geoRegions.map(region => `
+                        <div class="modal-region-card">
+                            <div class="modal-region-name">${region.name}</div>
+                            <div class="modal-region-location">${region.location}</div>
+                            <div class="modal-region-code">${region.code}</div>
+                            <div class="modal-service-badges">
+                                ${region.w365 ? '<span class="service-badge available">W365</span>' : '<span class="service-badge unavailable">W365</span>'}
+                                ${region.avd ? '<span class="service-badge available">AVD</span>' : '<span class="service-badge unavailable">AVD</span>'}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    modalRegionsList.innerHTML = html;
+    serviceModal.classList.add('active');
+}
+
+// Close modal
+function closeServiceModal() {
+    serviceModal.classList.remove('active');
+}
+
+// Service count event listeners
+w365Stat.addEventListener('click', () => showServiceModal('w365'));
+avdStat.addEventListener('click', () => showServiceModal('avd'));
+modalClose.addEventListener('click', closeServiceModal);
+serviceModal.addEventListener('click', (e) => {
+    if (e.target === serviceModal) {
+        closeServiceModal();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && serviceModal.classList.contains('active')) {
+        closeServiceModal();
+    }
+});
+
 
 // Initialize
 loadRegions();

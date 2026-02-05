@@ -541,6 +541,165 @@ header {
     font-weight: 500;
 }
 
+/* Clickable Stats */
+.stat-clickable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    margin: -0.5rem -1rem;
+}
+
+.stat-clickable:hover {
+    background: rgba(0, 188, 242, 0.1);
+    transform: translateY(-2px);
+}
+
+.stat-clickable .stat-value {
+    color: #10b981;
+}
+
+.stat-clickable:hover .stat-value {
+    color: #34d399;
+}
+
+/* Service Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 120, 212, 0.1);
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #00BCF2, #0078D4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #fff;
+}
+
+.modal-body {
+    padding: 1.5rem 2rem;
+    overflow-y: auto;
+}
+
+.modal-geography-group {
+    margin-bottom: 2rem;
+}
+
+.modal-geography-group:last-child {
+    margin-bottom: 0;
+}
+
+.modal-geography-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #00BCF2;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 188, 242, 0.3);
+}
+
+.modal-region-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.modal-region-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.modal-region-card:hover {
+    border-color: rgba(0, 188, 242, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.modal-region-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+    margin-bottom: 0.25rem;
+}
+
+.modal-region-location {
+    color: #a0aec0;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.modal-region-code {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #718096;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.modal-service-badges {
+    display: flex;
+    gap: 0.5rem;
+}
+
 footer {
     margin-top: 3rem;
     text-align: center;
@@ -568,5 +727,34 @@ footer p {
 
     .stat-value {
         font-size: 1.25rem;
+    }
+
+    .modal-overlay {
+        padding: 1rem;
+    }
+
+    .modal-content {
+        max-height: 90vh;
+    }
+
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .modal-body {
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-region-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-clickable {
+        padding: 0.25rem 0.5rem;
+        margin: -0.25rem -0.5rem;
     }
 }

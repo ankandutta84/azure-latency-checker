@@ -72,6 +72,27 @@
                 <span class="stat-label">Regions Tested</span>
                 <span class="stat-value" id="regionsTested">0 / 0</span>
             </div>
+            <div class="stat stat-clickable" id="w365Stat">
+                <span class="stat-label">Windows 365 Regions</span>
+                <span class="stat-value service-count" id="w365Count">0</span>
+            </div>
+            <div class="stat stat-clickable" id="avdStat">
+                <span class="stat-label">AVD Regions</span>
+                <span class="stat-value service-count" id="avdCount">0</span>
+            </div>
+        </div>
+
+        <!-- Service Regions Modal -->
+        <div class="modal-overlay" id="serviceModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Service Regions</h2>
+                    <button class="modal-close" id="modalClose">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-regions-list" id="modalRegionsList"></div>
+                </div>
+            </div>
         </div>
 
         <div class="filter-bar">
@@ -104,7 +125,7 @@
         </footer>
     </div>
 
-    <script src="cities.js"></script>
-    <script src="app.js"></script>
+    <script src="cities.js?v=2"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>
