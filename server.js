@@ -101,15 +101,25 @@ const DEFAULT_AVD_REGIONS = new Set([
   'southafricawest', 'brazilsouth', 'brazilsoutheast', 'chilecentral'
 ]);
 
+// Minimum expected regions for services (used to detect incomplete API data)
+const MIN_EXPECTED_W365_REGIONS = 20;
+const MIN_EXPECTED_AVD_REGIONS = 40;
+
 // API endpoint to get Azure regions data with dynamic service availability
 app.get('/api/regions', async (req, res) => {
   try {
     // Try to get service availability from Azure API
     const { w365Regions, avdRegions } = await getServiceAvailability();
 
-    // Use Azure data if available, otherwise fall back to defaults
-    const useW365 = w365Regions.size > 0 ? w365Regions : DEFAULT_W365_REGIONS;
-    const useAvd = avdRegions.size > 0 ? avdRegions : DEFAULT_AVD_REGIONS;
+    // Use Azure data only if it returns a reasonable number of regions
+    // The Azure Resource Provider API may return subscription-specific data
+    // which could be incomplete compared to actual public availability
+    const useW365 = w365Regions.size >= MIN_EXPECTED_W365_REGIONS
+      ? w365Regions
+      : DEFAULT_W365_REGIONS;
+    const useAvd = avdRegions.size >= MIN_EXPECTED_AVD_REGIONS
+      ? avdRegions
+      : DEFAULT_AVD_REGIONS;
 
     // Build regions with service availability
     const regions = BASE_REGIONS.map(region => ({
@@ -118,16 +128,12 @@ app.get('/api/regions', async (req, res) => {
       avd: useAvd.has(region.code)
     }));
 
-    // Add metadata about data source
-    const isLiveData = w365Regions.size > 0 || avdRegions.size > 0;
+    // Log data source info
+    const w365Source = w365Regions.size >= MIN_EXPECTED_W365_REGIONS ? 'live' : 'default';
+    const avdSource = avdRegions.size >= MIN_EXPECTED_AVD_REGIONS ? 'live' : 'default';
+    console.log(`Served regions - W365: ${w365Source} (${useW365.size}), AVD: ${avdSource} (${useAvd.size})`);
 
     res.json(regions);
-
-    if (isLiveData) {
-      console.log('Served regions with live Azure data');
-    } else {
-      console.log('Served regions with default/cached data');
-    }
   } catch (error) {
     console.error('Error in /api/regions:', error);
 
