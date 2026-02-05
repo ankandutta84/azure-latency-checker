@@ -56,6 +56,7 @@ azure-latency-checker/
 ### Prerequisites
 
 - Node.js 18+ installed
+- (Optional) Azure CLI for dynamic service availability
 
 ### Installation
 
@@ -72,6 +73,39 @@ npm start
 ```
 
 The app will be available at `http://localhost:3000`
+
+### Dynamic Azure Service Availability (Optional)
+
+The app can fetch W365 and AVD region availability directly from Azure APIs instead of using hardcoded data. To enable this:
+
+**Option 1: Azure CLI (for local development)**
+```bash
+# Login to Azure
+az login
+
+# Set your subscription ID
+export AZURE_SUBSCRIPTION_ID=your-subscription-id
+
+# Start the server
+npm start
+```
+
+**Option 2: Service Principal (for production)**
+```bash
+# Create a service principal with Reader role
+az ad sp create-for-rbac --name "azure-latency-checker" --role Reader --scopes /subscriptions/{subscription-id}
+
+# Set environment variables
+export AZURE_SUBSCRIPTION_ID=your-subscription-id
+export AZURE_TENANT_ID=your-tenant-id
+export AZURE_CLIENT_ID=your-client-id
+export AZURE_CLIENT_SECRET=your-client-secret
+
+# Start the server
+npm start
+```
+
+Without Azure configuration, the app uses default/hardcoded service availability data.
 
 ## Deployment to Azure
 
@@ -105,7 +139,7 @@ Create `.github/workflows/azure.yml` for CI/CD deployment.
 
 ### GET /api/regions
 
-Returns JSON array of all Azure regions with metadata:
+Returns JSON array of all Azure regions with metadata and service availability:
 
 ```json
 [
@@ -115,9 +149,23 @@ Returns JSON array of all Azure regions with metadata:
     "location": "Virginia",
     "geography": "North America",
     "lat": 37.3719,
-    "lng": -79.8164
+    "lng": -79.8164,
+    "w365": true,
+    "avd": true
   }
 ]
+```
+
+### POST /api/refresh-availability
+
+Force refresh service availability data from Azure APIs (requires Azure configuration).
+
+```json
+{
+  "success": true,
+  "w365Count": 27,
+  "avdCount": 52
+}
 ```
 
 ## License
