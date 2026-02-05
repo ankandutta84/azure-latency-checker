@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Regions Latency Checker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg viewBox="0 0 96 96" width="48" height="48">
+                    <defs>
+                        <linearGradient id="azure-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0078D4"/>
+                            <stop offset="100%" style="stop-color:#00BCF2"/>
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#azure-gradient)" d="M33.338 6.544h26.038l-27.03 80.087a4.152 4.152 0 0 1-3.933 2.824H8.149a4.145 4.145 0 0 1-3.928-5.47L29.404 9.368a4.152 4.152 0 0 1 3.934-2.825z"/>
+                    <path fill="#0078D4" d="M71.175 60.261H41.29a1.911 1.911 0 0 0-1.305 3.309l26.532 24.764a4.171 4.171 0 0 0 2.846 1.121h23.586z"/>
+                    <path fill="url(#azure-gradient)" d="M33.338 6.544a4.118 4.118 0 0 0-3.943 2.879L4.252 83.917a4.14 4.14 0 0 0 3.908 5.538h20.787a4.443 4.443 0 0 0 3.41-2.9l5.014-14.777 17.91 16.705a4.237 4.237 0 0 0 2.666.972h23.623L62.78 53.917l-30.37.022L59.4 6.544z"/>
+                </svg>
+                <h1>Azure Regions Latency Checker</h1>
+            </div>
+            <p class="subtitle">Measure network latency to all Azure regions from your location</p>
+        </header>
+
+        <div class="controls">
+            <button id="startTest" class="btn-primary">
+                <span class="btn-icon">▶</span>
+                Start Latency Test
+            </button>
+            <button id="stopTest" class="btn-secondary" disabled>
+                <span class="btn-icon">■</span>
+                Stop Test
+            </button>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+                <span class="progress-text" id="progressText">0%</span>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-label">Fastest Region</span>
+                <span class="stat-value" id="fastestRegion">--</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Best Latency</span>
+                <span class="stat-value" id="bestLatency">-- ms</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Regions Tested</span>
+                <span class="stat-value" id="regionsTested">0 / 0</span>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <label for="geographyFilter">Filter by Geography:</label>
+            <select id="geographyFilter">
+                <option value="all">All Regions</option>
+                <option value="North America">North America</option>
+                <option value="Europe">Europe</option>
+                <option value="Asia Pacific">Asia Pacific</option>
+                <option value="Australia">Australia & New Zealand</option>
+                <option value="Middle East">Middle East</option>
+                <option value="Africa">Africa</option>
+                <option value="South America">South America</option>
+            </select>
+            <label for="sortBy">Sort by:</label>
+            <select id="sortBy">
+                <option value="latency">Latency (Low to High)</option>
+                <option value="name">Region Name</option>
+                <option value="geography">Geography</option>
+            </select>
+        </div>
+
+        <div class="regions-grid" id="regionsGrid">
+            <div class="loading">Loading regions...</div>
+        </div>
+
+        <footer>
+            <p>Latency is measured by sending requests to Azure blob storage endpoints in each region.</p>
+            <p>Results may vary based on your network conditions and location.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
